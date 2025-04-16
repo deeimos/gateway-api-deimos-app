@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	grpcapp "gateway-api/internal/app/grpc"
 	"gateway-api/internal/client"
 	"gateway-api/internal/config"
@@ -33,8 +32,7 @@ func New(log *slog.Logger, config config.Config) *App {
 	serversService := server.New(log, serversClient)
 	monitoringService := metrics.New(log, serversClient)
 
-	fmt.Println(authService, serversService, monitoringService)
 	errMapper := validation.NewErrorMapper()
-	grpcApp := grpcapp.New(log, config.GRPCConfig.Port, authService, errMapper)
+	grpcApp := grpcapp.New(log, config.GRPCConfig.Port, authService, serversService, monitoringService, errMapper)
 	return &App{GRPCServer: grpcApp}
 }

@@ -3,9 +3,9 @@ package gateway
 import (
 	"context"
 	"fmt"
-	"gateway-api/internal/domain/models"
 	"gateway-api/internal/lib/validation"
 
+	auth_apiv1 "github.com/deeimos/proto-deimos-app/gen/go/auth-api"
 	gateway_apiv1 "github.com/deeimos/proto-deimos-app/gen/go/public-api"
 
 	"google.golang.org/grpc/codes"
@@ -13,10 +13,10 @@ import (
 )
 
 type Auth interface {
-	Login(ctx context.Context, email string, password string) (user *models.UserResponse, err error)
-	Register(ctx context.Context, name string, email string, password string) (*models.UserResponse, error)
-	Refresh(ctx context.Context, refersh string) (*models.Refresh, error)
-	GetUser(ctx context.Context, token string) (*models.UserInfo, error)
+	Login(ctx context.Context, email string, password string) (*auth_apiv1.LoginResponse, error)
+	Register(ctx context.Context, name string, email string, password string) (*auth_apiv1.RegisterResponse, error)
+	Refresh(ctx context.Context, refersh string) (*auth_apiv1.RefreshResponse, error)
+	GetUser(ctx context.Context, token string) (*auth_apiv1.GetUserResponse, error)
 }
 
 func (s *serverApi) Login(ctx context.Context, req *gateway_apiv1.LoginRequest) (*gateway_apiv1.LoginResponse, error) {

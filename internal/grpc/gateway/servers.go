@@ -5,16 +5,17 @@ import (
 	"gateway-api/internal/domain/models"
 
 	gateway_apiv1 "github.com/deeimos/proto-deimos-app/gen/go/public-api"
+	servers_apiv1 "github.com/deeimos/proto-deimos-app/gen/go/servers-api"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type Servers interface {
-	CreateServer(ctx context.Context, encryptedServer *models.EncryptedCreateServerModel) (string, error)
-	UpdateServer(ctx context.Context, encryptedServer *models.EncryptedServerModel) (string, error)
-	ServersList(ctx context.Context, userID string, clientType string) ([]*models.EncryptedServerModel, error)
-	Server(ctx context.Context, serverID string, userID string, clientType string) (*models.EncryptedServerModel, error)
-	DeleteServer(ctx context.Context, serverID, userID string) error
+	CreateServer(ctx context.Context, encryptedServer *models.EncryptedCreateServerModel) (*servers_apiv1.CreateServerResponse, error)
+	UpdateServer(ctx context.Context, encryptedServer *models.EncryptedServerModel) (*servers_apiv1.UpdateServerResponse, error)
+	ServersList(ctx context.Context, userID string, clientType string) (*servers_apiv1.GetServersListResponse, error)
+	Server(ctx context.Context, serverID string, userID string, clientType string) (*servers_apiv1.GetServerResponse, error)
+	DeleteServer(ctx context.Context, serverID, userID string) (*servers_apiv1.DeleteServerResponse, error)
 }
 
 func (s *serverApi) CreateServer(ctx context.Context, req *gateway_apiv1.CreateServerRequest) (*gateway_apiv1.CreateServerResponse, error) {

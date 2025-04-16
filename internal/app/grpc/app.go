@@ -10,8 +10,6 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-
-	"gateway-api/internal/services/auth"
 )
 
 type App struct {
@@ -21,12 +19,12 @@ type App struct {
 	errMapper  *validation.ErrorMapper
 }
 
-func New(log *slog.Logger, port int, authService *auth.Auth, errMapper *validation.ErrorMapper) *App {
+func New(log *slog.Logger, port int, auth gatewaygrpc.Auth, servers gatewaygrpc.Servers, monitoring gatewaygrpc.Monitoring, errMapper *validation.ErrorMapper) *App {
 	gRPCServer := grpc.NewServer(
-		grpc.UnaryInterceptor(middleware.NewAuthInterceptor(authService)),
+		grpc.UnaryInterceptor(middleware.NewAuthInterceptor(auth)),
 	)
 
-	gatewaygrpc.Register(gRPCServer, errMapper)
+	gatewaygrpc.Register(gRPCServer, auth, servers, monitoring, errMapper)
 
 	reflection.Register(gRPCServer)
 

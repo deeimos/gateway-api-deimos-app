@@ -4,10 +4,11 @@ import (
 	"context"
 
 	gateway_apiv1 "github.com/deeimos/proto-deimos-app/gen/go/public-api"
+	servers_apiv1 "github.com/deeimos/proto-deimos-app/gen/go/servers-api"
 )
 
 type Monitoring interface {
-	StreamServerMetrics(ctx context.Context, serverID, userID string, stream gateway_apiv1.PublicMonitoring_StreamServerMetricsServer) error
+	StreamServerMetrics(ctx context.Context, serverID, userID string, stream servers_apiv1.ServersAPI_StreamServerMetricsServer) error
 }
 
 func (s *serverApi) StreamServerMetrics(req *gateway_apiv1.PublicServerMetricsRequest, stream gateway_apiv1.PublicMonitoring_StreamServerMetricsServer) error {
