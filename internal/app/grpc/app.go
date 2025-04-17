@@ -21,7 +21,7 @@ type App struct {
 
 func New(log *slog.Logger, port int, auth gatewaygrpc.Auth, servers gatewaygrpc.Servers, monitoring gatewaygrpc.Monitoring, errMapper *validation.ErrorMapper) *App {
 	gRPCServer := grpc.NewServer(
-		grpc.UnaryInterceptor(middleware.NewAuthInterceptor(auth)),
+		grpc.UnaryInterceptor(middleware.NewAuthInterceptor(auth, errMapper)),
 	)
 
 	gatewaygrpc.Register(gRPCServer, auth, servers, monitoring, errMapper)

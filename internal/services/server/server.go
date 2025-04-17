@@ -2,9 +2,9 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"gateway-api/internal/client"
 	"gateway-api/internal/domain/models"
+	"gateway-api/internal/lib/validation"
 	"log/slog"
 
 	servers_apiv1 "github.com/deeimos/proto-deimos-app/gen/go/servers-api"
@@ -37,8 +37,9 @@ func (s *Server) CreateServer(ctx context.Context, serverModel *models.Encrypted
 		IsMonitoringEnabled:  serverModel.IsMonitoringEnabled,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, validation.HandleGRPCServiceError(log, op, err)
 	}
+
 	return resp, nil
 }
 
@@ -57,8 +58,9 @@ func (s *Server) UpdateServer(ctx context.Context, serverModel *models.Encrypted
 		IsMonitoringEnabled:  serverModel.IsMonitoringEnabled,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, validation.HandleGRPCServiceError(log, op, err)
 	}
+
 	return resp, nil
 }
 
@@ -74,8 +76,9 @@ func (s *Server) Server(ctx context.Context, serverID string, userID string, cli
 		UserId: userID,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, validation.HandleGRPCServiceError(log, op, err)
 	}
+
 	return resp, nil
 }
 
@@ -90,8 +93,9 @@ func (s *Server) ServersList(ctx context.Context, userID string, clientType stri
 		UserId: userID,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, validation.HandleGRPCServiceError(log, op, err)
 	}
+
 	return resp, nil
 }
 
@@ -106,7 +110,8 @@ func (s *Server) DeleteServer(ctx context.Context, serverID, userID string) (*se
 		Id:     serverID,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, validation.HandleGRPCServiceError(log, op, err)
 	}
+
 	return resp, nil
 }

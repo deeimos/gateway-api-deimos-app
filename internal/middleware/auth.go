@@ -3,12 +3,11 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"gateway-api/internal/lib/validation"
 	"strings"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
 
 	auth_apiv1 "github.com/deeimos/proto-deimos-app/gen/go/auth-api"
 )
@@ -18,9 +17,9 @@ type Auth interface {
 }
 type contextKey string
 
-const userIDKey contextKey = "UserID"
+const UserIDKey contextKey = "UserID"
 
-func NewAuthInterceptor(auth Auth) grpc.UnaryServerInterceptor {
+func NewAuthInterceptor(auth Auth, errMapper *validation.ErrorMapper) grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
 		req interface{},
@@ -35,20 +34,20 @@ func NewAuthInterceptor(auth Auth) grpc.UnaryServerInterceptor {
 
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
-			return nil, status.Error(codes.Unauthenticated, "Отсутствует Metadata")
+			return nil, errMapper.HandleGRPC(validation.ErrNoMetadata)
 		}
 
 		tokens := md.Get("token")
 		if len(tokens) == 0 || strings.TrimSpace(tokens[0]) == "" {
-			return nil, status.Error(codes.Unauthenticated, "Отсутствует токен")
+			return nil, errMapper.HandleGRPC(validation.ErrInvalidToken)
 		}
 
 		user, err := auth.GetUser(ctx, tokens[0])
 		if err != nil {
-			return nil, status.Error(codes.Unauthenticated, "Недействительный токен")
+			return nil, errMapper.HandleGRPC(validation.ErrInvalidToken)
 		}
 
-		ctx = context.WithValue(ctx, userIDKey, user.Id)
+		ctx = context.WithValue(ctx, UserIDKey, user.Id)
 		return handler(ctx, req)
 	}
 }

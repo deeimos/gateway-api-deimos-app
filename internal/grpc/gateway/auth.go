@@ -2,14 +2,10 @@ package gateway
 
 import (
 	"context"
-	"fmt"
-	"gateway-api/internal/lib/validation"
 
 	auth_apiv1 "github.com/deeimos/proto-deimos-app/gen/go/auth-api"
 	gateway_apiv1 "github.com/deeimos/proto-deimos-app/gen/go/public-api"
-
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"google.golang.org/grpc/metadata"
 )
 
 type Auth interface {
@@ -20,75 +16,58 @@ type Auth interface {
 }
 
 func (s *serverApi) Login(ctx context.Context, req *gateway_apiv1.LoginRequest) (*gateway_apiv1.LoginResponse, error) {
-	if err := validateLogin(req); err != nil {
+	user, err := s.auth.Login(ctx, req.GetEmail(), req.GetPassword())
+	if err != nil {
 		return nil, s.errMapper.HandleGRPC(err)
 	}
-	panic("implemet me")
+	return &gateway_apiv1.LoginResponse{
+		Id:           user.Id,
+		Email:        user.Email,
+		Name:         user.Name,
+		CreatedAt:    user.CreatedAt,
+		Token:        user.Token,
+		RefreshToken: user.RefreshToken,
+	}, nil
 }
 
 func (s *serverApi) Register(ctx context.Context, req *gateway_apiv1.RegisterRequest) (*gateway_apiv1.RegisterResponse, error) {
-	if err := validateRegister(req); err != nil {
+	user, err := s.auth.Register(ctx, req.GetName(), req.GetEmail(), req.GetPassword())
+	if err != nil {
 		return nil, s.errMapper.HandleGRPC(err)
 	}
-	panic("implemet me")
+	return &gateway_apiv1.RegisterResponse{
+		Id:           user.Id,
+		Email:        user.Email,
+		Name:         user.Name,
+		CreatedAt:    user.CreatedAt,
+		Token:        user.Token,
+		RefreshToken: user.RefreshToken,
+	}, nil
 }
 
 func (s *serverApi) Refresh(ctx context.Context, req *gateway_apiv1.RefreshRequest) (*gateway_apiv1.RefreshResponse, error) {
-	if req.GetRefreshToken() == "" {
-		return nil, status.Error(codes.Unauthenticated, "Отсутствует токен")
+	refreshToken, err := s.auth.Refresh(ctx, req.GetRefreshToken())
+	if err != nil {
+		return nil, s.errMapper.HandleGRPC(err)
 	}
-
-	panic("implemet me")
+	return &gateway_apiv1.RefreshResponse{
+		Token:        refreshToken.Token,
+		RefreshToken: refreshToken.RefreshToken,
+	}, nil
 }
 
 func (s *serverApi) GetUser(ctx context.Context, req *gateway_apiv1.GetUserRequest) (*gateway_apiv1.GetUserResponse, error) {
-	panic("implemet me")
-}
+	md, _ := metadata.FromIncomingContext(ctx)
+	tokens := md.Get("token")
 
-func validateLogin(req *gateway_apiv1.LoginRequest) error {
-	var errs validation.FieldErrors
-
-	if req.GetEmail() == "" {
-		errs = append(errs, &validation.FieldError{
-			Field: "email",
-			Err:   fmt.Errorf("%w: Поле не должно быть пустым", validation.ErrInvalidArgument),
-		})
+	user, err := s.auth.GetUser(ctx, tokens[0])
+	if err != nil {
+		return nil, s.errMapper.HandleGRPC(err)
 	}
-	if req.GetPassword() == "" {
-		errs = append(errs, &validation.FieldError{
-			Field: "password",
-			Err:   fmt.Errorf("%w: Поле не должно быть пустым", validation.ErrInvalidArgument),
-		})
-	}
-	if len(errs) > 0 {
-		return errs
-	}
-	return nil
-}
-
-func validateRegister(req *gateway_apiv1.RegisterRequest) error {
-	var errs validation.FieldErrors
-
-	if req.GetName() == "" {
-		errs = append(errs, &validation.FieldError{
-			Field: "name",
-			Err:   fmt.Errorf("%w: Поле не должно быть пустым", validation.ErrInvalidArgument),
-		})
-	}
-	if req.GetEmail() == "" {
-		errs = append(errs, &validation.FieldError{
-			Field: "email",
-			Err:   fmt.Errorf("%w: Поле не должно быть пустым", validation.ErrInvalidArgument),
-		})
-	}
-	if req.GetPassword() == "" {
-		errs = append(errs, &validation.FieldError{
-			Field: "password",
-			Err:   fmt.Errorf("%w: Поле не должно быть пустым", validation.ErrInvalidArgument),
-		})
-	}
-	if len(errs) > 0 {
-		return errs
-	}
-	return nil
+	return &gateway_apiv1.GetUserResponse{
+		Id:        user.Id,
+		Email:     user.Email,
+		Name:      user.Name,
+		CreatedAt: user.CreatedAt,
+	}, nil
 }

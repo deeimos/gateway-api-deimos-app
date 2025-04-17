@@ -3,10 +3,12 @@ package gateway
 import (
 	"context"
 	"gateway-api/internal/domain/models"
+	"gateway-api/internal/middleware"
 
 	gateway_apiv1 "github.com/deeimos/proto-deimos-app/gen/go/public-api"
 	servers_apiv1 "github.com/deeimos/proto-deimos-app/gen/go/servers-api"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -19,104 +21,114 @@ type Servers interface {
 }
 
 func (s *serverApi) CreateServer(ctx context.Context, req *gateway_apiv1.CreateServerRequest) (*gateway_apiv1.CreateServerResponse, error) {
-	// if req.GetUserId() == "" {
-	// 	return nil, status.Error(codes.InvalidArgument, "Отсутствует ID пользователя")
-	// }
-
-	// id, err := s.servers.CreateServer(ctx, &models.EncryptedCreateServerModel{
-	// 	UserID:               req.GetUserId(),
-	// 	EncryptedIP:          req.GetEncryptedIp(),
-	// 	EncryptedPort:        req.GetEncryptedPort(),
-	// 	EncryptedDisplayName: req.GetEncryptedDisplayName(),
-	// 	IsMonitoringEnabled:  req.IsMonitoringEnabled,
-	// })
-	// if err != nil {
-	// 	return nil, s.errMapper.HandleGRPC(err)
-	// }
-	// return &servers_apiv1.CreateServerResponse{Id: id}, nil
-	panic("implement me")
+	userID, ok := ctx.Value(middleware.UserIDKey).(string)
+	if !ok {
+		return nil, status.Error(codes.Internal, "userId is undefined")
+	}
+	server, err := s.servers.CreateServer(ctx, &models.EncryptedCreateServerModel{
+		UserID:               userID,
+		EncryptedIP:          req.GetEncryptedIp(),
+		EncryptedPort:        req.GetEncryptedPort(),
+		EncryptedDisplayName: req.GetEncryptedDisplayName(),
+		IsMonitoringEnabled:  req.IsMonitoringEnabled,
+	})
+	if err != nil {
+		return nil, s.errMapper.HandleGRPC(err)
+	}
+	return &gateway_apiv1.CreateServerResponse{
+		Id: server.Id,
+	}, nil
 }
 func (s *serverApi) UpdateServer(ctx context.Context, req *gateway_apiv1.UpdateServerRequest) (*gateway_apiv1.UpdateServerResponse, error) {
-	if req.GetId() == "" {
-		return nil, status.Error(codes.InvalidArgument, "Отсутствует ID сервера")
+	userID, ok := ctx.Value(middleware.UserIDKey).(string)
+	if !ok {
+		return nil, status.Error(codes.Internal, "userId is undefined")
 	}
-	// if req.GetUserId() == "" {
-	// 	return nil, status.Error(codes.InvalidArgument, "Отсутствует ID пользователя")
-	// }
-	// id, err := s.servers.CreateServer(ctx, &models.EncryptedCreateServerModel{
-	// 	UserID:               req.GetUserId(),
-	// 	EncryptedIP:          req.GetEncryptedIp(),
-	// 	EncryptedPort:        req.GetEncryptedPort(),
-	// 	EncryptedDisplayName: req.GetEncryptedDisplayName(),
-	// 	IsMonitoringEnabled:  req.IsMonitoringEnabled,
-	// })
-	// if err != nil {
-	// 	return nil, s.errMapper.HandleGRPC(err)
-	// }
-	// return &servers_apiv1.UpdateServerResponse{Id: id}, nil
-	panic("implement me")
+	server, err := s.servers.UpdateServer(ctx, &models.EncryptedServerModel{
+		ID:                   req.GetId(),
+		UserID:               userID,
+		EncryptedIP:          req.GetEncryptedIp(),
+		EncryptedPort:        req.GetEncryptedPort(),
+		EncryptedDisplayName: req.GetEncryptedDisplayName(),
+		IsMonitoringEnabled:  req.IsMonitoringEnabled,
+	})
+	if err != nil {
+		return nil, s.errMapper.HandleGRPC(err)
+	}
+	return &gateway_apiv1.UpdateServerResponse{
+		Id: server.Id,
+	}, nil
 }
 func (s *serverApi) GetServersList(ctx context.Context, req *gateway_apiv1.GetServersListRequest) (*gateway_apiv1.GetServersListResponse, error) {
-	// clientType, err := checkMetadata(ctx)
-	// if err != nil {
-	// 	return nil, status.Error(codes.InvalidArgument, "Отсутствует clientType")
-	// }
-	// if req.GetUserId() == "" {
-	// 	return nil, status.Error(codes.InvalidArgument, "Отсутствует ID пользователя")
-	// }
-	// serversList, err := s.servers.ServersList(ctx, req.GetUserId(), clientType)
-	// if err != nil {
-	// 	return nil, s.errMapper.HandleGRPC(err)
-	// }
-	// var response servers_apiv1.GetServersListResponse
-	// for _, srv := range serversList {
-	// 	response.Servers = append(response.Servers, &servers_apiv1.GetServerResponse{
-	// 		Id:                   srv.ID,
-	// 		EncryptedIp:          srv.EncryptedIP,
-	// 		EncryptedPort:        srv.EncryptedPort,
-	// 		EncryptedDisplayName: srv.EncryptedDisplayName,
-	// 		IsMonitoringEnabled:  srv.IsMonitoringEnabled,
-	// 		CreatedAt:            timestamppb.New(srv.CreatedAt),
-	// 	})
-	// }
+	userID, ok := ctx.Value(middleware.UserIDKey).(string)
+	if !ok {
+		return nil, status.Error(codes.Internal, "userId is undefined")
+	}
+	clientType, err := clientType(ctx)
+	if err != nil {
+		return nil, err
+	}
+	list, err := s.servers.ServersList(ctx, userID, clientType)
+	if err != nil {
+		return nil, s.errMapper.HandleGRPC(err)
+	}
 
-	// return &response, nil
-	panic("implement me")
+	var result []*gateway_apiv1.GetServerResponse
+	for _, server := range list.Servers {
+		result = append(result, &gateway_apiv1.GetServerResponse{
+			Id:                   server.Id,
+			EncryptedIp:          server.EncryptedIp,
+			EncryptedPort:        server.EncryptedPort,
+			EncryptedDisplayName: server.EncryptedDisplayName,
+			IsMonitoringEnabled:  server.IsMonitoringEnabled,
+		})
+	}
+	return &gateway_apiv1.GetServersListResponse{
+		Servers: result,
+	}, nil
 }
 func (s *serverApi) GetServer(ctx context.Context, req *gateway_apiv1.GetServerRequest) (*gateway_apiv1.GetServerResponse, error) {
-	// clientType, err := checkMetadata(ctx)
-	// if err != nil {
-	// 	return nil, status.Error(codes.InvalidArgument, "Отсутствует clientType")
-	// }
-	// if req.GetId() == "" {
-	// 	return nil, status.Error(codes.InvalidArgument, "Отсутствует ID сервера")
-	// }
-	// if req.GetUserId() == "" {
-	// 	return nil, status.Error(codes.InvalidArgument, "Отсутствует ID пользователя")
-	// }
-	// server, err := s.servers.Server(ctx, req.GetId(), req.GetUserId(), clientType)
-	// if err != nil {
-	// 	return nil, s.errMapper.HandleGRPC(err)
-	// }
-	// return &servers_apiv1.GetServerResponse{Id: server.ID, EncryptedIp: server.EncryptedIP, EncryptedPort: server.EncryptedPort, EncryptedDisplayName: server.EncryptedDisplayName}, nil
+	userID, ok := ctx.Value(middleware.UserIDKey).(string)
+	if !ok {
+		return nil, status.Error(codes.Internal, "userId is undefined")
+	}
 
-	panic("implement me")
+	clientType, err := clientType(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	server, err := s.servers.Server(ctx, req.GetId(), userID, clientType)
+	if err != nil {
+		return nil, s.errMapper.HandleGRPC(err)
+	}
+	return &gateway_apiv1.GetServerResponse{Id: server.Id, EncryptedIp: server.EncryptedIp, EncryptedPort: server.EncryptedPort, EncryptedDisplayName: server.EncryptedDisplayName}, nil
 }
 
 func (s *serverApi) DeleteServer(ctx context.Context, req *gateway_apiv1.DeleteServerRequest) (*gateway_apiv1.DeleteServerResponse, error) {
-	if req.GetId() == "" {
-		return nil, status.Error(codes.InvalidArgument, "Отсутствует ID сервера")
+	userID, ok := ctx.Value(middleware.UserIDKey).(string)
+	if !ok {
+		return nil, status.Error(codes.Internal, "userId is undefined")
 	}
-	// if req.GetUserId() == "" {
-	// 	return nil, status.Error(codes.InvalidArgument, "Отсутствует ID пользователя")
-	// }
-	// err := s.servers.DeleteServer(ctx, req.GetId(), req.GetUserId())
-	// if err != nil {
-	// 	return nil, s.errMapper.HandleGRPC(err)
-	// }
+	server, err := s.servers.DeleteServer(ctx, req.GetId(), userID)
+	if err != nil {
+		return nil, s.errMapper.HandleGRPC(err)
+	}
+	return &gateway_apiv1.DeleteServerResponse{
+		Id: server.Id,
+	}, nil
+}
 
-	// return &servers_apiv1.DeleteServerResponse{
-	// 	Id: req.GetId(),
-	// }, nil
-	panic("implement me")
+func clientType(ctx context.Context) (string, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", status.Error(codes.Unauthenticated, "Metadata отсутствует")
+	}
+
+	clientTypes := md.Get("client-type")
+	if len(clientTypes) == 0 {
+		return "", status.Error(codes.Unauthenticated, "client-type не указан")
+	}
+
+	return clientTypes[0], nil
 }

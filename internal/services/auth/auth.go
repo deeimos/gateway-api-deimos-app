@@ -2,8 +2,8 @@ package auth
 
 import (
 	"context"
-	"fmt"
 	"gateway-api/internal/client"
+	"gateway-api/internal/lib/validation"
 	"log/slog"
 
 	auth_apiv1 "github.com/deeimos/proto-deimos-app/gen/go/auth-api"
@@ -33,7 +33,7 @@ func (auth *Auth) Register(ctx context.Context, name string, email string, passw
 		Password: password,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, validation.HandleGRPCServiceError(log, op, err)
 	}
 
 	return resp, nil
@@ -50,7 +50,7 @@ func (auth *Auth) Login(ctx context.Context, email string, password string) (*au
 		Password: password,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, validation.HandleGRPCServiceError(log, op, err)
 	}
 
 	return resp, nil
@@ -65,8 +65,9 @@ func (auth *Auth) Refresh(ctx context.Context, refreshToken string) (*auth_apiv1
 		RefreshToken: refreshToken,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, validation.HandleGRPCServiceError(log, op, err)
 	}
+
 	return resp, nil
 }
 
@@ -80,7 +81,7 @@ func (auth *Auth) GetUser(ctx context.Context, token string) (*auth_apiv1.GetUse
 		Token: token,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, validation.HandleGRPCServiceError(log, op, err)
 	}
 
 	return resp, nil
