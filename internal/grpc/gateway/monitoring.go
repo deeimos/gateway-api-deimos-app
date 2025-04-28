@@ -14,7 +14,6 @@ type Monitoring interface {
 	StreamServerMetrics(ctx context.Context, serverID, userID string, stream servers_apiv1.ServersAPI_StreamServerMetricsServer) error
 }
 
-// streamAdapter реализует servers_apiv1.ServersAPI_StreamServerMetricsServer
 type streamAdapter struct {
 	gateway_apiv1.PublicMonitoring_StreamServerMetricsServer
 }
