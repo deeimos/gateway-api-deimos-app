@@ -7,6 +7,9 @@ import (
 	"gateway-api/internal/middleware"
 	"log/slog"
 	"net"
+	"net/http"
+
+	"github.com/improbable-eng/grpc-web/go/grpcweb"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -48,18 +51,27 @@ func (app *App) run() error {
 	log := app.log.With(slog.String("op", op), slog.Int("port", app.port))
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", app.port))
-
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
-	log.Info("gRPC is running", slog.String("addr", listener.Addr().String()))
+	log.Info("gRPC-Web API is running", slog.String("addr", listener.Addr().String()))
 
-	if err := app.gRPCServer.Serve(listener); err != nil {
-		return fmt.Errorf("%s: %w", op, err)
-	}
+	wrapped := grpcweb.WrapServer(app.gRPCServer,
+		grpcweb.WithOriginFunc(func(origin string) bool {
+			return true
+		}),
+	)
 
-	return nil
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if wrapped.IsGrpcWebRequest(r) || wrapped.IsAcceptableGrpcCorsRequest(r) {
+			wrapped.ServeHTTP(w, r)
+			return
+		}
+		http.NotFound(w, r)
+	})
+
+	return http.Serve(listener, handler)
 }
 
 func (app *App) Stop() {
