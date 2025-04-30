@@ -6,6 +6,10 @@ github.com/deeimos/proto-deimos-app v0.2.5 h1:0eouqyPKw49/bBXYCBVR/uC1O7t9gbcHNy
 github.com/deeimos/proto-deimos-app v0.2.5/go.mod h1:cV5Gufpsxw1NIHGykT/mPv924QYgYATDMqBYKHA88kA=
 github.com/deeimos/proto-deimos-app v0.2.7 h1:XnqkOTTelbhtLj8OHeZvdc0CTlik54M0YvWJzWV/83o=
 github.com/deeimos/proto-deimos-app v0.2.7/go.mod h1:cV5Gufpsxw1NIHGykT/mPv924QYgYATDMqBYKHA88kA=
+github.com/deeimos/proto-deimos-app v0.3.9 h1:9O0zdK8oFuwcBjDYjDhcHdeFSWxJ3GKsSipM5y6l4KY=
+github.com/deeimos/proto-deimos-app v0.3.9/go.mod h1:cV5Gufpsxw1NIHGykT/mPv924QYgYATDMqBYKHA88kA=
+github.com/deeimos/proto-deimos-app v0.3.10 h1:0jV5Xp7By2TSCZeuP0+LFH83WGayG5rSoOE7kdW2EEo=
+github.com/deeimos/proto-deimos-app v0.3.10/go.mod h1:cV5Gufpsxw1NIHGykT/mPv924QYgYATDMqBYKHA88kA=
 github.com/ilyakaznacheev/cleanenv v1.5.0 h1:0VNZXggJE2OYdXE87bfSSwGxeiGt9moSR2lOrsHHvr4=
 github.com/ilyakaznacheev/cleanenv v1.5.0/go.mod h1:a5aDzaJrLCQZsazHol1w8InnDcOX0OColm64SlIi6gk=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=

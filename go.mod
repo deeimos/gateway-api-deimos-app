@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
-	github.com/deeimos/proto-deimos-app v0.2.7 // indirect
+	github.com/deeimos/proto-deimos-app v0.3.10 // indirect
 	github.com/ilyakaznacheev/cleanenv v1.5.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	golang.org/x/net v0.34.0 // indirect

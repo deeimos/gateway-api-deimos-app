@@ -14,11 +14,11 @@ type Monitoring interface {
 	StreamServerMetrics(ctx context.Context, serverID, userID string, stream servers_apiv1.ServersAPI_StreamServerMetricsServer) error
 }
 
-type streamAdapter struct {
+type monitoringAdapter struct {
 	gateway_apiv1.PublicMonitoring_StreamServerMetricsServer
 }
 
-func (a *streamAdapter) Send(metric *servers_apiv1.ServerMetric) error {
+func (a *monitoringAdapter) Send(metric *servers_apiv1.ServerMetric) error {
 	return a.PublicMonitoring_StreamServerMetricsServer.Send(&gateway_apiv1.PublicServerMetric{
 		CpuUsage:      metric.CpuUsage,
 		MemoryUsage:   metric.MemoryUsage,
@@ -52,7 +52,7 @@ func (s *serverApi) StreamServerMetrics(
 		stream.Context(),
 		req.GetServerId(),
 		userID,
-		&streamAdapter{stream},
+		&monitoringAdapter{stream},
 	)
 	if err != nil {
 		return s.errMapper.HandleGRPC(err)

@@ -19,13 +19,13 @@ type App struct {
 	errMapper  *validation.ErrorMapper
 }
 
-func New(log *slog.Logger, port int, auth gatewaygrpc.Auth, servers gatewaygrpc.Servers, monitoring gatewaygrpc.Monitoring, errMapper *validation.ErrorMapper) *App {
+func New(log *slog.Logger, port int, auth gatewaygrpc.Auth, servers gatewaygrpc.Servers, monitoring gatewaygrpc.Monitoring, forecast gatewaygrpc.Forecast, errMapper *validation.ErrorMapper) *App {
 	gRPCServer := grpc.NewServer(
 		grpc.UnaryInterceptor(middleware.NewAuthInterceptor(auth, errMapper)),
 		grpc.StreamInterceptor(middleware.NewAuthStreamInterceptor(auth, errMapper)),
 	)
 
-	gatewaygrpc.Register(gRPCServer, auth, servers, monitoring, errMapper)
+	gatewaygrpc.Register(gRPCServer, auth, servers, monitoring, forecast, errMapper)
 
 	reflection.Register(gRPCServer)
 
