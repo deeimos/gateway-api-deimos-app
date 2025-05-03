@@ -55,16 +55,18 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	expiresAt, _ := extractExpiresAt(resp.GetToken())
+	accessExpiresAt, _ := extractExpiresAt(resp.GetToken())
+	refreshExpiresAt, _ := extractExpiresAt(resp.GetRefreshToken())
 
 	dto := models.User{
-		ID:           resp.GetId(),
-		Email:        resp.GetEmail(),
-		Name:         resp.GetName(),
-		CreatedAt:    formatTimestamp.FormatTimestamp(resp.GetCreatedAt()),
-		AccessToken:  resp.GetToken(),
-		ExpiresAt:    expiresAt,
-		RefreshToken: resp.GetRefreshToken(),
+		ID:               resp.GetId(),
+		Email:            resp.GetEmail(),
+		Name:             resp.GetName(),
+		CreatedAt:        formatTimestamp.FormatTimestamp(resp.GetCreatedAt()),
+		AccessToken:      resp.GetToken(),
+		ExpiresAt:        accessExpiresAt,
+		RefreshToken:     resp.GetRefreshToken(),
+		RefreshExpiresAt: refreshExpiresAt,
 	}
 
 	_ = json.NewEncoder(w).Encode(dto)
@@ -85,16 +87,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	expiresAt, _ := extractExpiresAt(resp.GetToken())
-
 	dto := models.User{
-		ID:           resp.GetId(),
-		Email:        resp.GetEmail(),
-		Name:         resp.GetName(),
-		CreatedAt:    formatTimestamp.FormatTimestamp(resp.GetCreatedAt()),
-		AccessToken:  resp.GetToken(),
-		ExpiresAt:    expiresAt,
-		RefreshToken: resp.GetRefreshToken(),
+		ID: resp.GetId(),
 	}
 
 	_ = json.NewEncoder(w).Encode(dto)
@@ -117,11 +111,13 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	}
 
 	expiresAt, _ := extractExpiresAt(resp.GetToken())
+	refreshExpiresAt, _ := extractExpiresAt(resp.GetRefreshToken())
 
 	dto := models.Tokens{
-		AccessToken:  resp.GetToken(),
-		ExpiresAt:    expiresAt,
-		RefreshToken: resp.GetRefreshToken(),
+		AccessToken:      resp.GetToken(),
+		ExpiresAt:        expiresAt,
+		RefreshToken:     resp.GetRefreshToken(),
+		RefreshExpiresAt: refreshExpiresAt,
 	}
 
 	_ = json.NewEncoder(w).Encode(dto)
