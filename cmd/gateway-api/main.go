@@ -23,7 +23,7 @@ func main() {
 	log.Debug("debug messages enabled")
 
 	application := app.New(log, *config)
-	go application.GRPCServer.Run()
+	go application.HttpServer.Run()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
@@ -31,7 +31,6 @@ func main() {
 	stoped := <-stop
 
 	log.Info("stoping application", slog.String("signal", stoped.String()))
-	application.GRPCServer.Stop()
 	log.Info("application stoped")
 }
 

@@ -38,27 +38,19 @@ func (forecast *Forecast) ServerForecast(ctx context.Context, serverID, userID s
 	return resp, nil
 }
 
-func (forecast *Forecast) StreamServerForecast(ctx context.Context, serverID, userID string, stream servers_apiv1.ServersAPI_StreamServerForecastServer) error {
-	const op = "server.StreamServerForecast"
+func (forecast *Forecast) StreamServerForecast(ctx context.Context, serverID, userID string) (servers_apiv1.ServersAPI_StreamServerForecastClient, error) {
+	const op = "forecast.StreamClient"
 
 	log := forecast.log.With(slog.String("op", op))
-	log.Info("GRPC")
+	log.Info("Starting forecast stream via gRPC")
+
 	streamClient, err := forecast.serversClient.Client.StreamServerForecast(ctx, &servers_apiv1.ServerForecastStreamRequest{
 		ServerId: serverID,
 		UserId:   userID,
 	})
 	if err != nil {
-		return fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	for {
-		point, err := streamClient.Recv()
-		if err != nil {
-			return fmt.Errorf("%s: failed to receive from stream: %w", op, err)
-		}
-
-		if err := stream.Send(point); err != nil {
-			return fmt.Errorf("%s: failed to forward point: %w", op, err)
-		}
-	}
+	return streamClient, nil
 }

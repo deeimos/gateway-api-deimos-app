@@ -1,32 +1,24 @@
 package models
 
-import "time"
+type User struct {
+	ID           string `json:"id"`
+	Email        string `json:"email"`
+	Name         string `json:"name"`
+	CreatedAt    string `json:"created_at"`
+	AccessToken  string `json:"access_token"`
+	ExpiresAt    int64  `json:"expires_at"`
+	RefreshToken string `json:"refresh_token"`
+}
 
-type UserModel struct {
-	ID           string
-	Email        string
-	Name         string
-	PasswordHash []byte
-	CreatedAt    time.Time
+type Tokens struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresAt    int64  `json:"expires_in"`
 }
 
 type UserInfo struct {
-	ID        string
-	Email     string
-	Name      string
-	CreatedAt time.Time
-}
-
-type UserResponse struct {
-	ID           string
-	Email        string
-	Name         string
-	CreatedAt    time.Time
-	Token        string
-	RefreshToken string
-}
-
-type Refresh struct {
-	Token        string
-	RefreshToken string
+	ID        string `json:"id"`
+	Email     string `json:"email"`
+	Name      string `json:"name"`
+	CreatedAt string `json:"created_at"`
 }

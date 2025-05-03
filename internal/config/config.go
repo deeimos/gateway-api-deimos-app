@@ -10,13 +10,14 @@ import (
 
 type Config struct {
 	Env        string `yaml:"env"  env:"ENV" env-default:"local" env-required:"true"`
-	GRPCConfig `yaml:"grpc"`
+	HTTPConfig `yaml:"http"`
 	APIs       `yaml:"client"`
 }
 
-type GRPCConfig struct {
-	Port    int           `yaml:"port" env-required:"true"`
-	Timeout time.Duration `yaml:"timeout" env-required:"true"`
+type HTTPConfig struct {
+	Port        int           `yaml:"port" env-required:"true"`
+	Timeout     time.Duration `yaml:"timeout" env-required:"true"`
+	IdleTimeout time.Duration `yaml:"idle_timeout" env-required:"true"`
 }
 type APIs struct {
 	AuthAPI    API `yaml:"auth_api" env-required:"true"`

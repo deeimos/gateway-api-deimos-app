@@ -1,51 +1,20 @@
 package models
 
-import "time"
-
-type ServerModel struct {
-	ID                  string
-	UserID              string
-	IP                  string
-	Port                string
-	DisplayName         string
-	IsMonitoringEnabled bool
-	CreatedAt           time.Time
+type EncryptedCreateServerModel struct {
+	UserID               string `json:"-"`
+	EncryptedIp          string `json:"encrypted_ip"`
+	EncryptedPort        string `json:"encrypted_port"`
+	EncryptedDisplayName string `json:"encrypted_display_name"`
+	IsMonitoringEnabled  bool   `json:"is_monitoring_enabled"`
+	CreatedAt            string `json:"created_at"`
 }
 
 type EncryptedServerModel struct {
-	ID                   string
-	UserID               string
-	EncryptedIP          string
-	EncryptedPort        string
-	EncryptedDisplayName string
-	IsMonitoringEnabled  bool
-	CreatedAt            time.Time
-}
-
-type CreateServerModel struct {
-	UserID              string
-	IP                  string
-	Port                string
-	DisplayName         string
-	IsMonitoringEnabled bool
-}
-
-type EncryptedCreateServerModel struct {
-	UserID               string
-	EncryptedIP          string
-	EncryptedPort        string
-	EncryptedDisplayName string
-	IsMonitoringEnabled  bool
-}
-
-type EncryptedServerInfo struct {
-	EncryptedIP          string
-	EncryptedPort        string
-	EncryptedDisplayName string
-}
-
-type DecryptedServerInfo struct {
-	IP          string
-	Port        string
-	DisplayName string
+	ID                   string `json:"id"`
+	UserID               string `json:"-"`
+	EncryptedIp          string `json:"encrypted_ip"`
+	EncryptedPort        string `json:"encrypted_port"`
+	EncryptedDisplayName string `json:"encrypted_display_name"`
+	IsMonitoringEnabled  bool   `json:"is_monitoring_enabled"`
+	CreatedAt            string `json:"created_at"`
 }

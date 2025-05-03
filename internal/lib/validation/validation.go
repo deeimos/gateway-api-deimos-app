@@ -1,72 +1,68 @@
 package validation
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/http"
+	"strings"
 
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-type ErrorMapper struct {
-	userMessages map[error]string
-}
-
-func NewErrorMapper() *ErrorMapper {
-	return &ErrorMapper{
-		userMessages: map[error]string{
-			ErrNoMetadata:   "Metadata отсутствует",
-			ErrInvalidToken: "Неверный или истекший токен",
-			ErrGateway:      "Ошибка при обращении к микросервису",
-		},
-	}
-}
-
 var (
-	ErrNoMetadata   = errors.New("missing metadata")
 	ErrInvalidToken = errors.New("invalid token")
 	ErrGateway      = errors.New("internal gateway error")
 )
-
-func (em *ErrorMapper) HandleGRPC(err error) error {
-	if s, ok := status.FromError(err); ok {
-		switch s.Code() {
-		case codes.Unavailable:
-			return status.Error(codes.Unavailable, "Сервис временно недоступен")
-		default:
-			return s.Err()
-		}
-	}
-
-	switch {
-	case errors.Is(err, ErrNoMetadata):
-		return status.Error(codes.Unauthenticated, em.userMessageFor(err))
-	case errors.Is(err, ErrInvalidToken):
-		return status.Error(codes.Unauthenticated, em.userMessageFor(err))
-	case errors.Is(err, ErrGateway):
-		return status.Error(codes.Internal, em.userMessageFor(err))
-	default:
-		return status.Errorf(codes.Internal, "Внутренняя ошибка: %v", err)
-	}
-}
-
-func (em *ErrorMapper) userMessageFor(err error) string {
-	if msg, ok := em.userMessages[err]; ok {
-		return msg
-	}
-	return err.Error()
-}
 
 func WrapGatewayError(op string, err error) error {
 	return fmt.Errorf("%s: %w", op, ErrGateway)
 }
 
 func HandleGRPCServiceError(log *slog.Logger, op string, err error) error {
-	if _, ok := status.FromError(err); ok {
-		return err
+	if s, ok := status.FromError(err); ok {
+		return s.Err()
 	}
 
 	log.Error("service unreachable", slog.String("op", op), slog.String("err", err.Error()))
-	return fmt.Errorf("%s: %w", op, ErrGateway)
+	return WrapGatewayError(op, err)
+}
+
+func BuildErrorResponse(err error) map[string]interface{} {
+	s, ok := status.FromError(err)
+	if !ok {
+		return map[string]interface{}{"message": "Внутренняя ошибка сервера"}
+	}
+
+	pairs := strings.Split(s.Message(), ";")
+	fieldErrors := make(map[string]interface{})
+
+	for _, pair := range pairs {
+		pair = strings.TrimSpace(pair)
+		if pair == "" {
+			continue
+		}
+
+		parts := strings.SplitN(pair, ":", 2)
+		if len(parts) == 2 {
+			field := strings.TrimSpace(parts[0])
+			message := strings.TrimSpace(parts[1])
+			fieldErrors[field] = message
+		}
+	}
+
+	if len(fieldErrors) > 0 {
+		return fieldErrors
+	}
+
+	return map[string]interface{}{"message": s.Message()}
+}
+
+func WriteError(w http.ResponseWriter, err error, code int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+
+	payload := BuildErrorResponse(err)
+	_ = json.NewEncoder(w).Encode(payload)
 }

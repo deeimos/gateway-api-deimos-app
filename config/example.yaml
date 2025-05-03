@@ -1,8 +1,9 @@
 env: "dev"
 
-grpc:
+http:
   port: 1000
-  timeout: 5s
+  timeout: 10s
+  idle_timeout: 30s
 
 client:
   auth_api:
@@ -14,5 +15,5 @@ client:
   servers_api:
     host: "servers-api"
     port: 1020
-    timeout: 3s
+    timeout: 5s
     use_tls: false

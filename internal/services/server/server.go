@@ -31,7 +31,7 @@ func (s *Server) CreateServer(ctx context.Context, serverModel *models.Encrypted
 
 	resp, err := s.serversClient.Client.CreateServer(ctx, &servers_apiv1.CreateServerRequest{
 		UserId:               serverModel.UserID,
-		EncryptedIp:          serverModel.EncryptedIP,
+		EncryptedIp:          serverModel.EncryptedIp,
 		EncryptedPort:        serverModel.EncryptedPort,
 		EncryptedDisplayName: serverModel.EncryptedDisplayName,
 		IsMonitoringEnabled:  serverModel.IsMonitoringEnabled,
@@ -48,11 +48,10 @@ func (s *Server) UpdateServer(ctx context.Context, serverModel *models.Encrypted
 
 	log := s.log.With(slog.String("op", op))
 	log.Info("GRPC")
-
 	resp, err := s.serversClient.Client.UpdateServer(ctx, &servers_apiv1.UpdateServerRequest{
 		Id:                   serverModel.ID,
 		UserId:               serverModel.UserID,
-		EncryptedIp:          serverModel.EncryptedIP,
+		EncryptedIp:          serverModel.EncryptedIp,
 		EncryptedPort:        serverModel.EncryptedPort,
 		EncryptedDisplayName: serverModel.EncryptedDisplayName,
 		IsMonitoringEnabled:  serverModel.IsMonitoringEnabled,
@@ -64,13 +63,13 @@ func (s *Server) UpdateServer(ctx context.Context, serverModel *models.Encrypted
 	return resp, nil
 }
 
-func (s *Server) Server(ctx context.Context, serverID string, userID string, clientType string) (*servers_apiv1.GetServerResponse, error) {
+func (s *Server) Server(ctx context.Context, serverID string, userID string) (*servers_apiv1.GetServerResponse, error) {
 	const op = "server.UpdateServer"
 
 	log := s.log.With(slog.String("op", op))
 	log.Info("GRPC")
 
-	ctx = metadata.AppendToOutgoingContext(ctx, "client-type", clientType)
+	ctx = metadata.AppendToOutgoingContext(ctx, "client-type", "frontend")
 	resp, err := s.serversClient.Client.GetServer(ctx, &servers_apiv1.GetServerRequest{
 		Id:     serverID,
 		UserId: userID,
@@ -82,13 +81,13 @@ func (s *Server) Server(ctx context.Context, serverID string, userID string, cli
 	return resp, nil
 }
 
-func (s *Server) ServersList(ctx context.Context, userID string, clientType string) (*servers_apiv1.GetServersListResponse, error) {
+func (s *Server) ServersList(ctx context.Context, userID string) (*servers_apiv1.GetServersListResponse, error) {
 	const op = "server.UpdateServer"
 
 	log := s.log.With(slog.String("op", op))
 	log.Info("GRPC")
 
-	ctx = metadata.AppendToOutgoingContext(ctx, "client-type", clientType)
+	ctx = metadata.AppendToOutgoingContext(ctx, "client-type", "frontend")
 	resp, err := s.serversClient.Client.GetServersList(ctx, &servers_apiv1.GetServersListRequest{
 		UserId: userID,
 	})
