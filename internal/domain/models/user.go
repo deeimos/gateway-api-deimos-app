@@ -8,14 +8,14 @@ type User struct {
 	AccessToken      string `json:"access_token"`
 	ExpiresAt        int64  `json:"expires_at"`
 	RefreshToken     string `json:"refresh_token"`
-	RefreshExpiresAt int64  `json:"refresh_expires_in"`
+	RefreshExpiresAt int64  `json:"refresh_expires_at"`
 }
 
 type Tokens struct {
 	AccessToken      string `json:"access_token"`
 	RefreshToken     string `json:"refresh_token"`
 	ExpiresAt        int64  `json:"expires_in"`
-	RefreshExpiresAt int64  `json:"refresh_expires_in"`
+	RefreshExpiresAt int64  `json:"refresh_expires_at"`
 }
 
 type UserInfo struct {
