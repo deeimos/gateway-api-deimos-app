@@ -33,7 +33,7 @@ func New(
 	metricsHandler *metricsHandler.MetricsHandler,
 	forecastHandler *forecastHandler.ForecastHandler,
 ) *App {
-	appRouter := router.NewRouter(log, authService, authHandler, serverHandler, metricsHandler, forecastHandler)
+	appRouter := router.NewRouter(config.HostedFront, log, authService, authHandler, serverHandler, metricsHandler, forecastHandler)
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", config.Port),

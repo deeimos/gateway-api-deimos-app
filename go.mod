@@ -14,6 +14,7 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
+	github.com/go-chi/cors v1.2.1 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
 	golang.org/x/net v0.34.0 // indirect

@@ -18,6 +18,7 @@ type HTTPConfig struct {
 	Port        int           `yaml:"port" env-required:"true"`
 	Timeout     time.Duration `yaml:"timeout" env-required:"true"`
 	IdleTimeout time.Duration `yaml:"idle_timeout" env-required:"true"`
+	HostedFront string        `yaml:"hosted_front" env-default:"http://localhost:3001"`
 }
 type APIs struct {
 	AuthAPI    API `yaml:"auth_api" env-required:"true"`

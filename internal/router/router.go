@@ -13,10 +13,20 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 )
 
-func NewRouter(log *slog.Logger, authService *authService.Auth, authHandler *authHandler.AuthHandler, serverHandler *serverHandler.ServerHandler, metricsHandler *metricsHandler.MetricsHandler, forecastHandler *forecastHandler.ForecastHandler) http.Handler {
+func NewRouter(hostedFront string, log *slog.Logger, authService *authService.Auth, authHandler *authHandler.AuthHandler, serverHandler *serverHandler.ServerHandler, metricsHandler *metricsHandler.MetricsHandler, forecastHandler *forecastHandler.ForecastHandler) http.Handler {
 	router := chi.NewRouter()
+
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000", hostedFront},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
 
 	router.Use(loggerMiddleware.New(log))
 
