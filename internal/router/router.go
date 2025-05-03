@@ -33,13 +33,13 @@ func NewRouter(hostedFront string, log *slog.Logger, authService *authService.Au
 	router.Route("/auth", func(r chi.Router) {
 		r.Post("/login", authHandler.Login)
 		r.Post("/register", authHandler.Register)
+		r.Post("/refresh", authHandler.Refresh)
 	})
 
 	router.Group(func(r chi.Router) {
 		r.Use(authMiddleware.AuthMiddleware(authService))
 
 		r.Route("/user", func(r chi.Router) {
-			r.Post("/refresh", authHandler.Refresh)
 			r.Get("/me", authHandler.User)
 		})
 
