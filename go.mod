@@ -3,8 +3,9 @@ module gateway-api
 go 1.24.0
 
 require (
-	github.com/deeimos/proto-deimos-app v0.3.12
+	github.com/deeimos/proto-deimos-app v0.4.0
 	github.com/go-chi/chi/v5 v5.2.1
+	github.com/go-chi/cors v1.2.1
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/gorilla/websocket v1.4.1
 	github.com/ilyakaznacheev/cleanenv v1.5.0
@@ -14,7 +15,6 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
-	github.com/go-chi/cors v1.2.1 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
 	golang.org/x/net v0.34.0 // indirect

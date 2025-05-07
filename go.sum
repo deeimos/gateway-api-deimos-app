@@ -2,6 +2,8 @@ github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/deeimos/proto-deimos-app v0.3.12 h1:5ApANFcCZBUPy9i/awAvfvMHrb6jue4aXZGjowWjhcM=
 github.com/deeimos/proto-deimos-app v0.3.12/go.mod h1:cV5Gufpsxw1NIHGykT/mPv924QYgYATDMqBYKHA88kA=
+github.com/deeimos/proto-deimos-app v0.4.0 h1:KV6iOVg9bs+0TlNihUkR+nk4FjrfGucqKrPDjpMZNfA=
+github.com/deeimos/proto-deimos-app v0.4.0/go.mod h1:cV5Gufpsxw1NIHGykT/mPv924QYgYATDMqBYKHA88kA=
 github.com/go-chi/chi/v5 v5.2.1 h1:KOIHODQj58PmL80G2Eak4WdvUzjSJSm0vG72crDCqb8=
 github.com/go-chi/chi/v5 v5.2.1/go.mod h1:L2yAIGWB3H+phAw1NxKwWM+7eUH/lU8pOMm5hHcoops=
 github.com/go-chi/cors v1.2.1 h1:xEC8UT3Rlp2QuWNEr4Fs/c2EAGVKBwy/1vHx3bppil4=

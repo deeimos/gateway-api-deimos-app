@@ -3,7 +3,6 @@ package forecastHandler
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"gateway-api/internal/domain/models"
 	"gateway-api/internal/lib/utils/formatTimestamp"
 	"gateway-api/internal/lib/validation"
@@ -45,10 +44,8 @@ func (h *ForecastHandler) Forecast(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), h.timeout)
 	defer cancel()
 
-	fmt.Println(123, serverID)
 	resp, err := h.service.ServerForecast(ctx, serverID, userID)
 	if err != nil {
-		fmt.Println(123, err.Error())
 		validation.WriteError(w, err, http.StatusInternalServerError)
 		return
 	}

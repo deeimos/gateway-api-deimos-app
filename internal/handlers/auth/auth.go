@@ -51,7 +51,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := h.service.Login(ctx, req.Email, req.Password)
 	if err != nil {
-		validation.WriteError(w, err, http.StatusUnauthorized)
+		validation.WriteError(w, err, http.StatusBadRequest)
 		return
 	}
 
