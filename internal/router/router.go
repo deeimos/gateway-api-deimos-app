@@ -5,6 +5,7 @@ import (
 	metricsHandler "gateway-api/internal/handlers/metrics"
 	serverHandler "gateway-api/internal/handlers/server"
 	authMiddleware "gateway-api/internal/middleware/auth"
+	"gateway-api/internal/middleware/contentType"
 	loggerMiddleware "gateway-api/internal/middleware/logger"
 	authService "gateway-api/internal/services/auth"
 
@@ -34,6 +35,8 @@ func NewRouter(hostedFront string, log *slog.Logger, authService *authService.Au
 	router.Use(loggerMiddleware.New(log))
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
+
+	router.Use(contentType.JsonContentType)
 
 	router.Route("/auth", func(r chi.Router) {
 		r.Post("/login", authHandler.Login)
