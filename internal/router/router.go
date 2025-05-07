@@ -13,6 +13,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 )
 
@@ -28,7 +29,11 @@ func NewRouter(hostedFront string, log *slog.Logger, authService *authService.Au
 		MaxAge:           300,
 	}))
 
+	router.Use(middleware.RequestID)
+	router.Use(middleware.Logger)
 	router.Use(loggerMiddleware.New(log))
+	router.Use(middleware.Recoverer)
+	router.Use(middleware.URLFormat)
 
 	router.Route("/auth", func(r chi.Router) {
 		r.Post("/login", authHandler.Login)
