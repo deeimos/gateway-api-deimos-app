@@ -88,6 +88,7 @@ func (h *ServerHandler) Get(w http.ResponseWriter, r *http.Request) {
 		EncryptedPort:        resp.GetEncryptedPort(),
 		EncryptedDisplayName: resp.GetEncryptedDisplayName(),
 		IsMonitoringEnabled:  resp.GetIsMonitoringEnabled(),
+		IsServerEnabled:      resp.GetIsServerEnabled(),
 		CreatedAt:            formatTimestamp.FormatTimestamp(resp.GetCreatedAt()),
 	}
 
@@ -114,6 +115,7 @@ func (h *ServerHandler) List(w http.ResponseWriter, r *http.Request) {
 			EncryptedPort:        server.GetEncryptedPort(),
 			EncryptedDisplayName: server.GetEncryptedDisplayName(),
 			IsMonitoringEnabled:  server.GetIsMonitoringEnabled(),
+			IsServerEnabled:      server.GetIsServerEnabled(),
 			CreatedAt:            formatTimestamp.FormatTimestamp(server.GetCreatedAt()),
 		})
 	}
