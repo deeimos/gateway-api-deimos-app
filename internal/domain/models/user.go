@@ -14,7 +14,7 @@ type User struct {
 type Tokens struct {
 	AccessToken      string `json:"access_token"`
 	RefreshToken     string `json:"refresh_token"`
-	ExpiresAt        int64  `json:"expires_in"`
+	ExpiresAt        int64  `json:"expires_at"`
 	RefreshExpiresAt int64  `json:"refresh_expires_at"`
 }
 
