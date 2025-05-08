@@ -6,6 +6,7 @@ type EncryptedCreateServerModel struct {
 	EncryptedPort        string `json:"encrypted_port"`
 	EncryptedDisplayName string `json:"encrypted_display_name"`
 	IsMonitoringEnabled  bool   `json:"is_monitoring_enabled"`
+	IsServerEnabled      bool   `json:"is_server_enabled"`
 	CreatedAt            string `json:"created_at"`
 }
 
@@ -16,5 +17,6 @@ type EncryptedServerModel struct {
 	EncryptedPort        string `json:"encrypted_port"`
 	EncryptedDisplayName string `json:"encrypted_display_name"`
 	IsMonitoringEnabled  bool   `json:"is_monitoring_enabled"`
+	IsServerEnabled      bool   `json:"is_server_enabled"`
 	CreatedAt            string `json:"created_at"`
 }

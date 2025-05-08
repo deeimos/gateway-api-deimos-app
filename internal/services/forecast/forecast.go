@@ -2,7 +2,6 @@ package forecast
 
 import (
 	"context"
-	"fmt"
 	"gateway-api/internal/client"
 	"gateway-api/internal/lib/validation"
 	"log/slog"
@@ -36,21 +35,4 @@ func (forecast *Forecast) ServerForecast(ctx context.Context, serverID, userID s
 	}
 
 	return resp, nil
-}
-
-func (forecast *Forecast) StreamServerForecast(ctx context.Context, serverID, userID string) (servers_apiv1.ServersAPI_StreamServerForecastClient, error) {
-	const op = "forecast.StreamClient"
-
-	log := forecast.log.With(slog.String("op", op))
-	log.Info("Starting forecast stream via gRPC")
-
-	streamClient, err := forecast.serversClient.Client.StreamServerForecast(ctx, &servers_apiv1.ServerForecastStreamRequest{
-		ServerId: serverID,
-		UserId:   userID,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
-	}
-
-	return streamClient, nil
 }

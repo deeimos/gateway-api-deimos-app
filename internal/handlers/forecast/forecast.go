@@ -11,8 +11,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/websocket"
-
 	servers_apiv1 "github.com/deeimos/proto-deimos-app/gen/go/servers-api"
 )
 
@@ -59,52 +57,6 @@ func (h *ForecastHandler) Forecast(w http.ResponseWriter, r *http.Request) {
 		"server_id": resp.ServerId,
 		"forecasts": dto,
 	})
-}
-
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool { return true },
-}
-
-func (h *ForecastHandler) Stream(w http.ResponseWriter, r *http.Request) {
-	serverID := r.URL.Query().Get("server_id")
-	if serverID == "" {
-		validation.WriteError(w, validation.ErrInvalidToken, http.StatusBadRequest)
-		return
-	}
-
-	userID, ok := r.Context().Value(auth.UserIDKey).(string)
-	if !ok || userID == "" {
-		validation.WriteError(w, validation.ErrInvalidToken, http.StatusUnauthorized)
-		return
-	}
-
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		return
-	}
-	defer conn.Close()
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	streamClient, err := h.service.StreamServerForecast(ctx, serverID, userID)
-	if err != nil {
-		conn.WriteJSON(map[string]string{"error": err.Error()})
-		return
-	}
-
-	for {
-		point, err := streamClient.Recv()
-		if err != nil {
-			conn.WriteJSON(map[string]string{"error": "stream error"})
-			break
-		}
-		dto := convertForecastPoint(point)
-
-		if err := conn.WriteJSON(dto); err != nil {
-			break
-		}
-	}
 }
 
 func convertForecastPoint(p *servers_apiv1.ServerForecastPoint) models.ServerForecast {

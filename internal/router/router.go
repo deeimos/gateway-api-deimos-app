@@ -65,7 +65,6 @@ func NewRouter(hostedFront string, log *slog.Logger, authService *authService.Au
 
 		r.Route("/forecast", func(r chi.Router) {
 			r.Get("/", forecastHandler.Forecast)
-			// r.Get("/stream", forecastHandler.Stream) Пока что без него
 		})
 	})
 	return router
