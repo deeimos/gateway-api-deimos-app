@@ -8,19 +8,22 @@ import (
 	"gateway-api/internal/lib/validation"
 	"gateway-api/internal/middleware/auth"
 	"gateway-api/internal/services/metrics"
+	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
 
 type MetricsHandler struct {
-	service *metrics.Metrics
-	timeout time.Duration
+	service     *metrics.Metrics
+	authService auth.Auth
+	timeout     time.Duration
 }
 
-func NewMetricsHandler(service *metrics.Metrics, timeout time.Duration) *MetricsHandler {
-	return &MetricsHandler{service: service, timeout: timeout}
+func NewMetricsHandler(service *metrics.Metrics, authService auth.Auth, timeout time.Duration) *MetricsHandler {
+	return &MetricsHandler{service: service, authService: authService, timeout: timeout}
 }
 
 var upgrader = websocket.Upgrader{
@@ -34,17 +37,30 @@ func (h *MetricsHandler) Stream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, ok := r.Context().Value(auth.UserIDKey).(string)
-	if !ok || userID == "" {
+	token := r.URL.Query().Get("token")
+	if strings.TrimSpace(token) == "" {
+		http.Error(w, "unauthorized (no token)", http.StatusUnauthorized)
+		return
+	}
+
+	user, err := h.authService.GetUser(r.Context(), token)
+	if err != nil {
+		log.Printf("[WebSocket] auth error: %v, token: %s", err, token)
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
+	userID := user.Id
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return
 	}
-	defer conn.Close()
+	defer func() {
+		log.Printf("[WebSocket] disconnected: user=%s server=%s", userID, serverID)
+		conn.Close()
+	}()
+
+	log.Printf("[WebSocket] connected: user=%s server=%s", userID, serverID)
 
 	ctx, cancel := context.WithCancel(r.Context())
 	defer cancel()
@@ -52,14 +68,28 @@ func (h *MetricsHandler) Stream(w http.ResponseWriter, r *http.Request) {
 	stream, err := h.service.StreamServerMetrics(ctx, serverID, userID)
 	if err != nil {
 		validation.WriteError(w, err, http.StatusInternalServerError)
+		log.Printf("[WebSocket] stream error: %v", err)
 		return
 	}
+
+	go func() {
+		ticker := time.NewTicker(15 * time.Second)
+		defer ticker.Stop()
+		for range ticker.C {
+			if err := conn.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+				log.Printf("[WebSocket] ping error: %v", err)
+				return
+			}
+		}
+	}()
 
 	for {
 		metric, err := stream.Recv()
 		if err != nil {
+			log.Printf("[WebSocket] stream.Recv error: %v", err)
 			break
 		}
+
 		dto := models.ServerMetric{
 			CPUUsage:      metric.GetCpuUsage(),
 			MemoryUsage:   metric.GetMemoryUsage(),
@@ -81,10 +111,12 @@ func (h *MetricsHandler) Stream(w http.ResponseWriter, r *http.Request) {
 
 		data, err := json.Marshal(dto)
 		if err != nil {
+			log.Printf("[WebSocket] marshal error: %v", err)
 			continue
 		}
 
 		if err := conn.WriteMessage(websocket.TextMessage, data); err != nil {
+			log.Printf("[WebSocket] write error: %v", err)
 			break
 		}
 	}

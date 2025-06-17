@@ -44,6 +44,8 @@ func NewRouter(hostedFront string, log *slog.Logger, authService *authService.Au
 		r.Post("/refresh", authHandler.Refresh)
 	})
 
+	router.Get("/metrics", metricsHandler.Stream)
+
 	router.Group(func(r chi.Router) {
 		r.Use(authMiddleware.AuthMiddleware(authService))
 
@@ -57,10 +59,6 @@ func NewRouter(hostedFront string, log *slog.Logger, authService *authService.Au
 			r.Post("/create", serverHandler.Create)
 			r.Put("/update", serverHandler.Update)
 			r.Delete("/delete/{id}", serverHandler.Delete)
-		})
-
-		r.Route("/metrics", func(r chi.Router) {
-			r.Get("/", metricsHandler.Stream)
 		})
 
 		r.Route("/forecast", func(r chi.Router) {

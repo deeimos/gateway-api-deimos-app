@@ -39,7 +39,7 @@ func New(log *slog.Logger, config config.Config) *App {
 
 	authHandler := authHandler.NewAuthHandler(authService, config.Timeout)
 	serverHandler := serverHandler.NewServerHandler(serverService, config.Timeout)
-	metricsHandler := metricsHandler.NewMetricsHandler(metrcisService, config.Timeout)
+	metricsHandler := metricsHandler.NewMetricsHandler(metrcisService, authService, config.Timeout)
 	forecastHandler := forecastHandler.NewForecastHandler(forecastService, config.Timeout)
 
 	httpApp := httpapp.New(log, config, authService, authHandler, serverHandler, metricsHandler, forecastHandler)
