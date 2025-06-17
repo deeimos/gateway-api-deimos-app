@@ -1,6 +1,8 @@
 package models
 
 type ServerMetric struct {
+	TotalMemory   float64 `json:"total_memory"`
+	CPUCoreCount  int32   `json:"cpu_core_count"`
 	CPUUsage      float64 `json:"cpu_usage"`
 	MemoryUsage   float64 `json:"memory_usage"`
 	DiskUsage     float64 `json:"disk_usage"`

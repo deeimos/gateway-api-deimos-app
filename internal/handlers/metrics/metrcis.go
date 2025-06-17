@@ -91,6 +91,8 @@ func (h *MetricsHandler) Stream(w http.ResponseWriter, r *http.Request) {
 		}
 
 		dto := models.ServerMetric{
+			CPUCoreCount:  metric.GetCpuCoreCount(),
+			TotalMemory:   metric.GetTotalMemory(),
 			CPUUsage:      metric.GetCpuUsage(),
 			MemoryUsage:   metric.GetMemoryUsage(),
 			DiskUsage:     metric.GetDiskUsage(),
